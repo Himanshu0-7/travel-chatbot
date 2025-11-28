@@ -35,6 +35,7 @@ export default function ChatPage() {
       body: JSON.stringify({ message: text })
     });
 
+    
     const data = await res.json();
 
     setIsLoading(false);

@@ -20,7 +20,8 @@ export async function POST(req) {
           role: "user",
           content: userMessage
         }
-      ]
+      ],
+      stream:true
     });
 
     return new Response(

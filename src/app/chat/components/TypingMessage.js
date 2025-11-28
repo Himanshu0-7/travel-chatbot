@@ -61,6 +61,7 @@ export default function TypingMessage({ text }) {
       if (isBullet) {
         const content = trimmed
           .replace(/^[-*]\s/, "")
+          .replace(/^[-#]\s/, "")
           .replace(/^[0-9]+\.\s/, "");
 
         currentList.push(content);
