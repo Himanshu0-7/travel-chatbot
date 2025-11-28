@@ -6,42 +6,37 @@ const client = new OpenAI({
 
 export async function POST(req) {
   try {
-    const body = await req.json();
-    const userMessage = body.message;
+    const { message, history = [] } = await req.json();
 
-    const completion = await client.chat.completions.create({
+    // Convert history into OpenAI message format
+    const formattedHistory = history.map(m => ({
+      role: m.role,
+      content: m.content
+    }));
+
+    const stream = await client.chat.completions.create({
       model: "gpt-4o-mini",
+      stream: true,
       messages: [
         {
           role: "system",
-          content: "You are a travel expert. Answer only travel-related questions in India."
+          content:
+            "You are a helpful travel assistant for India. Always answer based on conversation context."
         },
-        {
-          role: "user",
-          content: userMessage
-        }
-      ],
-      stream:true
+        ...formattedHistory,
+        { role: "user", content: message }
+      ]
     });
 
-    return new Response(
-      JSON.stringify({
-        reply: completion.choices[0].message.content
-      }),
-      {
-        status: 200,
-        headers: { "Content-Type": "application/json" }
-      }
-    );
+    return new Response(stream.toReadableStream(), {
+      headers: { "Content-Type": "application/json" }
+    });
 
   } catch (err) {
-    console.error(err);
-    return new Response(
-      JSON.stringify({ error: "Server error" }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json" }
-      }
-    );
+    console.log(err);
+    return new Response(JSON.stringify({ error: "Server error" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" }
+    });
   }
 }

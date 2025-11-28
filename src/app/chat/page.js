@@ -25,25 +25,58 @@ export default function ChatPage() {
     const text = messageText || input;
     if (!text) return;
 
+    // Add user message locally
     setMessages(prev => [...prev, { role: "user", content: text }]);
     setInput("");
     setIsLoading(true);
 
+    // Prepare history for backend (exclude current message)
+    const history = messages.map(m => ({
+      role: m.role,
+      content: m.content
+    }));
+
     const res = await fetch("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: text })
+      body: JSON.stringify({ message: text, history })
     });
 
-    
-    const data = await res.json();
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+
+    // Add empty assistant message
+    setMessages(prev => [...prev, { role: "assistant", content: "" }]);
+
+    let accumulated = "";
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      const chunk = decoder.decode(value);
+
+      const lines = chunk.split("\n").filter(line => line.trim() !== "");
+      for (const line of lines) {
+        try {
+          const json = JSON.parse(line);
+          const token = json?.choices?.[0]?.delta?.content;
+          if (token) {
+            accumulated += token;
+
+            setMessages(prev => {
+              const updated = [...prev];
+              updated[updated.length - 1].content = accumulated;
+              return updated;
+            });
+          }
+        } catch (err) {
+          // ignore incomplete JSON
+        }
+      }
+    }
 
     setIsLoading(false);
-
-    setMessages(prev => [
-      ...prev,
-      { role: "assistant", content: data.reply }
-    ]);
   }
 
   return (

@@ -1,34 +1,44 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
-// ---- CLEAN MARKDOWN (remove **, *, __) ----
+// Clean markdown
+// Clean markdown (bold, italic, underline, headers)
 function cleanText(text) {
   return text
-    .replace(/\*\*/g, "")   // remove **
-    .replace(/\*/g, "")     // remove *
-    .replace(/__/g, "");    // remove __
+    .replace(/\*\*/g, "")      // bold **
+    .replace(/\*/g, "")         // italic *
+    .replace(/__/g, "")         // underline __
+    .replace(/^#{1,6}\s+/gm, ""); // headers (#, ##, ###, etc.)
 }
 
-// ---- TYPING COMPONENT WITH BULLET SUPPORT ----
+
 export default function TypingMessage({ text }) {
   const clean = cleanText(text);
-  const [displayed, setDisplayed] = useState("");
 
-  // typing animation
+  const [displayed, setDisplayed] = useState("");
+  const indexRef = useRef(0);
+  const prevTextRef = useRef("");
+
   useEffect(() => {
-    let i = 0;
-    setDisplayed("");
+    // If new chunk comes (streaming), append it without resetting animation
+    if (text.length > prevTextRef.current.length) {
+      prevTextRef.current = clean;
+    }
 
     const interval = setInterval(() => {
-      i++;
-      setDisplayed(clean.slice(0, i));
-      if (i >= clean.length) clearInterval(interval);
-    }, 15);
+      setDisplayed((prev) => {
+        if (prev.length < clean.length) {
+          indexRef.current++;
+          return clean.slice(0, indexRef.current);
+        }
+        clearInterval(interval);
+        return prev;
+      });
+    }, 12);
 
     return () => clearInterval(interval);
   }, [clean]);
 
-  // format bullets correctly
   const renderFormatted = () => {
     const lines = displayed.split("\n");
 
@@ -52,7 +62,6 @@ export default function TypingMessage({ text }) {
 
     lines.forEach((line, idx) => {
       const trimmed = line.trim();
-
       const isBullet =
         trimmed.startsWith("- ") ||
         trimmed.startsWith("* ") ||
@@ -61,14 +70,10 @@ export default function TypingMessage({ text }) {
       if (isBullet) {
         const content = trimmed
           .replace(/^[-*]\s/, "")
-          .replace(/^[-#]\s/, "")
           .replace(/^[0-9]+\.\s/, "");
-
         currentList.push(content);
       } else {
-        // Whenever paragraph starts, push existing <ul>
         pushList("ul_" + idx);
-
         if (trimmed.length > 0) {
           elements.push(
             <p key={idx} style={{ margin: "4px 0" }}>
@@ -79,9 +84,7 @@ export default function TypingMessage({ text }) {
       }
     });
 
-    // push final list if exists
     pushList("ul_final");
-
     return elements;
   };
 
