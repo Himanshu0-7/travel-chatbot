@@ -81,7 +81,7 @@ export default function ChatPage() {
 
   return (
     <div style={{ width: "100%", maxWidth: "500px",overflowX: "hidden",color:"white" }}>
-      <h1>Ai Assistant</h1>
+      <h1 style={{textAlign:"center"}}>Ai Assistant</h1>
       {/* Suggested buttons */}
       <div style={{ marginBottom: 20 }}>
         <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
