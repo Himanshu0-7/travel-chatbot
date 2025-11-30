@@ -80,12 +80,10 @@ export default function ChatPage() {
   }
 
   return (
-    <div style={{ width: "100%", maxWidth: "500px",overflowX: "hidden" }}>
-      <h1>Travel Chatbot</h1>
-
+    <div style={{ width: "100%", maxWidth: "500px",overflowX: "hidden",color:"white" }}>
+      <h1>Ai Assistant</h1>
       {/* Suggested buttons */}
       <div style={{ marginBottom: 20 }}>
-        <h3>Suggested Questions:</h3>
         <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
           {suggested.map((q, i) => (
             <button
