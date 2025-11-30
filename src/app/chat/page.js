@@ -80,7 +80,7 @@ export default function ChatPage() {
   }
 
   return (
-    <div style={{ width: "100%", maxWidth: "600px", margin: "auto", padding: 20 }}>
+    <div style={{ width: "100%", maxWidth: "600px", margin: "auto", padding: 20,overflowX: "hidden" }}>
       <h1>Travel Chatbot</h1>
 
       {/* Suggested buttons */}
