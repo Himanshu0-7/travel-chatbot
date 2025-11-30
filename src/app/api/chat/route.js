@@ -21,7 +21,8 @@ export async function POST(req) {
         {
           role: "system",
           content:
-            "You are a helpful travel assistant for India. Always answer based on conversation context."
+            "You are a helpful travel assistant for India. When the user asks about trips or destinations, give sightseeing, itineraries, and travel tips. When relevant, suggest hotels or accommodations, including location, price range, amenities, and whether they are suitable for families, couples, or solo travelers.Always base your answers on the conversation context."
+
         },
         ...formattedHistory,
         { role: "user", content: message }

@@ -10,11 +10,12 @@ export default function ChatPage() {
   const bottomRef = useRef(null);
 
   const suggested = [
-    "Best places to visit in Sambalpur?",
-    "Give me a 5-day travel plan.",
-    "Where should I go in winter?",
-    "Places to visit near me?"
-  ];
+  "Best places to visit in India?",
+  "Give me a 5-day travel plan.",
+  "Where should I go in winter in India?",
+  "Family-friendly hotels nearby?"
+];
+
 
   // Auto scroll to bottom
   useEffect(() => {
