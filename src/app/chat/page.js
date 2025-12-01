@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef } from "react";
 import TypingMessage from "./components/TypingMessage";
 import LoadingDots from "./components/LoadingDots";
+import "../chat/font.css";
 
 export default function ChatPage() {
   const [messages, setMessages] = useState([]);
@@ -10,14 +11,12 @@ export default function ChatPage() {
   const bottomRef = useRef(null);
 
   const suggested = [
-  "Best places to visit in India?",
-  "Give me a 5-day travel plan.",
-  "Where should I go in winter in India?",
-  "Family-friendly hotels nearby?"
-];
+    "Best places to visit in India?",
+    "Give me a 5-day travel plan.",
+    "Where should I go in winter in India?",
+    "Family-friendly hotels nearby?"
+  ];
 
-
-  // Auto scroll to bottom
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isLoading]);
@@ -26,12 +25,10 @@ export default function ChatPage() {
     const text = messageText || input;
     if (!text) return;
 
-    // Add user message locally
     setMessages(prev => [...prev, { role: "user", content: text }]);
     setInput("");
     setIsLoading(true);
 
-    // Prepare history for backend (exclude current message)
     const history = messages.map(m => ({
       role: m.role,
       content: m.content
@@ -46,7 +43,6 @@ export default function ChatPage() {
     const reader = res.body.getReader();
     const decoder = new TextDecoder();
 
-    // Add empty assistant message
     setMessages(prev => [...prev, { role: "assistant", content: "" }]);
 
     let accumulated = "";
@@ -56,8 +52,8 @@ export default function ChatPage() {
       if (done) break;
 
       const chunk = decoder.decode(value);
-
       const lines = chunk.split("\n").filter(line => line.trim() !== "");
+
       for (const line of lines) {
         try {
           const json = JSON.parse(line);
@@ -71,9 +67,7 @@ export default function ChatPage() {
               return updated;
             });
           }
-        } catch (err) {
-          // ignore incomplete JSON
-        }
+        } catch { }
       }
     }
 
@@ -81,9 +75,29 @@ export default function ChatPage() {
   }
 
   return (
-    <div style={{ width: "100%", maxWidth: "500px",overflowX: "hidden",color:"white" }}>
-      <h1 style={{textAlign:"center"}}>Ai Assistant</h1>
-      {/* Suggested buttons */}
+    <div
+      style={{
+        width: "100%",
+        maxWidth: "100%",
+        overflowX: "hidden",
+        color: "black",
+        padding: "12px",
+        boxSizing: "border-box",
+        fontFamily: "Text_Font"
+      }}
+    >
+      {/* Title */}
+      <h1
+        style={{
+          textAlign: "center",
+          fontFamily: "Title_Font",
+          fontSize: "clamp(20px, 5vw, 32px)"
+        }}
+      >
+        Ai Assistant
+      </h1>
+
+      {/* Suggested Buttons */}
       <div style={{ marginBottom: 20 }}>
         <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
           {suggested.map((q, i) => (
@@ -95,7 +109,8 @@ export default function ChatPage() {
                 borderRadius: 8,
                 background: "#fcf5e8ff",
                 border: "1px solid #1e1e1e6a",
-                cursor: "pointer"
+                cursor: "pointer",
+                fontSize: "clamp(13px, 3vw, 17px)"
               }}
             >
               {q}
@@ -116,14 +131,14 @@ export default function ChatPage() {
         >
           <div
             style={{
-              maxWidth: "75%",
+              maxWidth: "85%",
               padding: "10px 14px",
               borderRadius: "14px",
               background: m.role === "user" ? "#f7d488ff" : "#F4EAD5",
               color: "#000",
-              fontSize: "15px",
               lineHeight: "1.4",
-              whiteSpace: "pre-wrap"
+              whiteSpace: "pre-wrap",
+              fontSize: "clamp(14px, 3vw, 17px)"
             }}
           >
             {m.role === "assistant" ? (
@@ -135,7 +150,7 @@ export default function ChatPage() {
         </div>
       ))}
 
-      {/* Loading dots while waiting */}
+      {/* Loading dots */}
       {isLoading && (
         <div
           style={{
@@ -149,7 +164,7 @@ export default function ChatPage() {
               background: "#F4EAD5",
               padding: "10px 14px",
               borderRadius: "14px",
-              maxWidth: "75%"
+              maxWidth: "85%"
             }}
           >
             <LoadingDots />
@@ -159,26 +174,28 @@ export default function ChatPage() {
 
       <div ref={bottomRef}></div>
 
-      {/* Input */}
-      <div style={{ display: "flex", marginTop: 10 }}>
+      {/* Input Box */}
+      <div style={{ display: "flex", marginTop: 10, width: "100%" }}>
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Ask anything about travel..."
           style={{
-            width: "80%",
+            flex: 1,
             padding: 10,
             border: "1px solid #ccc",
-            borderRadius: "8px"
+            borderRadius: "8px",
+            fontSize: "clamp(14px, 3vw, 18px)"
           }}
         />
         <button
           onClick={() => sendMessage()}
           style={{
-            padding: 10,
+            padding: "10px 14px",
             marginLeft: 10,
             borderRadius: 8,
-            cursor: "pointer"
+            cursor: "pointer",
+            fontSize: "clamp(14px, 3vw, 18px)"
           }}
         >
           Send

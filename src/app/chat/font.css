@@ -1,0 +1,12 @@
+@font-face {
+  font-family: "Title_Font";
+  src: url("../../../public/Font/Lora-Regular.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Text_Font";
+  src: url("../../../public/Font/Lora-Medium.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+}
