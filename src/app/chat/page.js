@@ -91,7 +91,7 @@ export default function ChatPage() {
         style={{
           textAlign: "center",
           fontFamily: "Title_Font",
-          fontSize: "clamp(20px, 5vw, 32px)"
+          fontSize: "clamp(40px, 5vw, 62px)"
         }}
       >
         Ai Assistant
