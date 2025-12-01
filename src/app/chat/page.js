@@ -8,13 +8,21 @@ export default function ChatPage() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [followUpCount, setFollowUpCount] = useState(0);
+  const maxFollowUp = 3; // show follow-up suggestions only 3 times
   const bottomRef = useRef(null);
 
-  const suggested = [
+  const commonSuggestions = [
     "Best places to visit in India?",
     "Give me a 5-day travel plan.",
     "Where should I go in winter in India?",
     "Family-friendly hotels nearby?"
+  ];
+
+  const followUpSuggestions = [
+    "Show me hotels in that city",
+    "Any local food recommendations?",
+    "Best time to visit?"
   ];
 
   useEffect(() => {
@@ -25,11 +33,10 @@ export default function ChatPage() {
     const text = messageText || input;
     if (!text) return;
 
-    setMessages(prev => [...prev, { role: "user", content: text }]);
+    setMessages((prev) => [...prev, { role: "user", content: text }]);
     setInput("");
-    setIsLoading(true);
-
-    const history = messages.map(m => ({
+    
+    const history = messages.map((m) => ({
       role: m.role,
       content: m.content
     }));
@@ -39,35 +46,36 @@ export default function ChatPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ message: text, history })
     });
-
+    
     const reader = res.body.getReader();
     const decoder = new TextDecoder();
-
-    setMessages(prev => [...prev, { role: "assistant", content: "" }]);
-
+    
+    setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
+    setIsLoading(true);
+    
     let accumulated = "";
-
+    
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
-
+      
       const chunk = decoder.decode(value);
-      const lines = chunk.split("\n").filter(line => line.trim() !== "");
-
+      const lines = chunk.split("\n").filter((line) => line.trim() !== "");
+      
       for (const line of lines) {
         try {
           const json = JSON.parse(line);
           const token = json?.choices?.[0]?.delta?.content;
           if (token) {
             accumulated += token;
-
-            setMessages(prev => {
+            
+            setMessages((prev) => {
               const updated = [...prev];
               updated[updated.length - 1].content = accumulated;
               return updated;
             });
           }
-        } catch { }
+        } catch {}
       }
     }
 
@@ -97,10 +105,10 @@ export default function ChatPage() {
         Ai Assistant
       </h1>
 
-      {/* Suggested Buttons */}
+      {/* Common Suggestions (always visible) */}
       <div style={{ marginBottom: 20 }}>
         <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
-          {suggested.map((q, i) => (
+          {commonSuggestions.map((q, i) => (
             <button
               key={i}
               onClick={() => sendMessage(q)}
@@ -120,59 +128,80 @@ export default function ChatPage() {
       </div>
 
       {/* Messages */}
-      {messages.map((m, i) => (
-        <div
-          key={i}
-          style={{
-            display: "flex",
-            justifyContent: m.role === "user" ? "flex-end" : "flex-start",
-            marginBottom: "12px"
-          }}
-        >
+      <div style={{ paddingBottom: "80px" }}> {/* space before input */}
+        {messages.map((m, i) => (
           <div
+            key={i}
             style={{
-              maxWidth: "85%",
-              padding: "10px 14px",
-              borderRadius: "14px",
-              background: m.role === "user" ? "#f7d488ff" : "#F4EAD5",
-              color: "#000",
-              lineHeight: "1.4",
-              whiteSpace: "pre-wrap",
-              fontSize: "clamp(14px, 3vw, 17px)"
+              display: "flex",
+              justifyContent: m.role === "user" ? "flex-end" : "flex-start",
+              marginBottom: "12px"
             }}
           >
-            {m.role === "assistant" ? (
-              <TypingMessage text={m.content} />
-            ) : (
-              m.content
-            )}
+            <div
+              style={{
+                maxWidth: "85%",
+                padding: "10px 14px",
+                borderRadius: "14px",
+                background: m.role === "user" ? "#f7d488ff" : "#F4EAD5",
+                color: "#000",
+                lineHeight: "1.4",
+                whiteSpace: "pre-wrap",
+                fontSize: "clamp(14px, 3vw, 17px)"
+              }}
+            >
+              {m.role === "assistant" ? <TypingMessage text={m.content} /> : m.content}
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
 
-      {/* Loading dots */}
-      {isLoading && (
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "flex-start",
-            marginBottom: 10
-          }}
-        >
-          <div
-            style={{
-              background: "#F4EAD5",
-              padding: "10px 14px",
-              borderRadius: "14px",
-              maxWidth: "85%"
-            }}
-          >
-            <LoadingDots />
+        {/* Loading dots */}
+        {isLoading && (
+          <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: 10 }}>
+            <div
+              style={{
+                background: "#F4EAD5",
+                padding: "10px 14px",
+                borderRadius: "14px",
+                maxWidth: "85%"
+              }}
+            >
+              <LoadingDots />
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      <div ref={bottomRef}></div>
+        <div ref={bottomRef}></div>
+      </div>
+
+      {/* Follow-up Suggestions (after assistant reply, limited times) */}
+      {messages.length > 0 &&
+      !isLoading &&                                    // <--- bot finished
+      messages[messages.length - 1]?.role === "assistant" &&
+      followUpCount < maxFollowUp && (
+
+          <div style={{ margin: "15px 0", display: "flex", flexWrap: "wrap", gap: "10px" }}>
+            {followUpSuggestions.map((q, i) => (
+              <button
+                key={i}
+                onClick={() => {
+                  sendMessage(q);
+                  setFollowUpCount(followUpCount + 1);
+                }}
+                style={{
+                  padding: "10px 15px",
+                  borderRadius: 8,
+                  background: "#fcf5e8ff",
+                  border: "1px solid #1e1e1e6a",
+                  cursor: "pointer",
+                  fontSize: "clamp(13px, 3vw, 17px)"
+                }}
+              >
+                {q}
+              </button>
+            ))}
+          </div>
+        )}
 
       {/* Input Box */}
       <div style={{ display: "flex", marginTop: 10, width: "100%" }}>
