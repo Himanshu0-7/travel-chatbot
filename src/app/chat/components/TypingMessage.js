@@ -2,17 +2,15 @@
 import { useState, useEffect, useRef } from "react";
 
 // Clean markdown
-// Clean markdown (bold, italic, underline, headers)
 function cleanText(text) {
   return text
-    .replace(/\*\*/g, "")      // bold **
-    .replace(/\*/g, "")         // italic *
-    .replace(/__/g, "")         // underline __
-    .replace(/^#{1,6}\s+/gm, ""); // headers (#, ##, ###, etc.)
+    .replace(/\*\*/g, "")          // bold **
+    .replace(/\*/g, "")            // italic *
+    .replace(/__/g, "")            // underline __
+    .replace(/^#{1,6}\s+/gm, "");  // headers
 }
 
-
-export default function TypingMessage({ text }) {
+export default function TypingMessage({ text, onDone }) {
   const clean = cleanText(text);
 
   const [displayed, setDisplayed] = useState("");
@@ -20,19 +18,27 @@ export default function TypingMessage({ text }) {
   const prevTextRef = useRef("");
 
   useEffect(() => {
-    // If new chunk comes (streaming), append it without resetting animation
-    if (text.length > prevTextRef.current.length) {
+    // Append chunk without resetting animation
+    if (clean.length > prevTextRef.current.length) {
       prevTextRef.current = clean;
     }
 
-    const interval = setInterval(() => {
+   const interval = setInterval(() => {
       setDisplayed((prev) => {
         if (prev.length < clean.length) {
           indexRef.current++;
           return clean.slice(0, indexRef.current);
+        } else {
+          clearInterval(interval);
+
+          // ✅ IMPORTANT FIX:
+          // Prevent React error: “Cannot update parent while rendering child”
+          setTimeout(() => {
+            onDone?.();
+          }, 0);
+
+          return prev;
         }
-        clearInterval(interval);
-        return prev;
       });
     }, 12);
 
@@ -41,7 +47,6 @@ export default function TypingMessage({ text }) {
 
   const renderFormatted = () => {
     const lines = displayed.split("\n");
-
     const elements = [];
     let currentList = [];
 

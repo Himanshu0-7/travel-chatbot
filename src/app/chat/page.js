@@ -8,10 +8,14 @@ export default function ChatPage() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [typingDone, setTypingDone] = useState(false);   // 🔥 NEW
   const [followUpCount, setFollowUpCount] = useState(0);
-  const maxFollowUp = 3; // show follow-up suggestions only 3 times
-  const bottomRef = useRef(null);
 
+  const bottomRef = useRef(null);
+  const maxFollowUp = 3;
+
+  // COMMON SUGGESTIONS
   const commonSuggestions = [
     "Best places to visit in India?",
     "Give me a 5-day travel plan.",
@@ -19,24 +23,60 @@ export default function ChatPage() {
     "Family-friendly hotels nearby?"
   ];
 
-  const followUpSuggestions = [
-    "Show me hotels in that city",
-    "Any local food recommendations?",
-    "Best time to visit?"
+  // FOLLOW UP SUGGESTION SETS
+  const suggestionSets = {
+    hotels: [
+      "Show me hotels in that city",
+      "Budget-friendly hotels?",
+      "Luxury stays nearby"
+    ],
+    food: [
+      "Any local food recommendations?",
+      "Best places to eat?",
+      "Street food suggestions?"
+    ],
+    travelInfo: [
+      "Best time to visit?",
+      "How to reach there?",
+      "Weather details?"
+    ]
+  };
+    const suggestionGroups = [
+    suggestionSets.hotels,
+    suggestionSets.food,
+    suggestionSets.travelInfo
   ];
 
+   const currentSuggestions =
+    suggestionGroups[followUpCount % suggestionGroups.length];
+
+  // AUTO SCROLL
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isLoading]);
 
+  // WELCOME MESSAGE ONCE
+  useEffect(() => {
+    if (messages.length === 0) {
+      setMessages([
+        {
+          role: "assistant",
+          content:
+            "👋 Hi! I’m your AI Assistant.\n\nI can help you with:\n• Best places to visit\n• Custom itineraries\n• Hotels & stays\n• Local food & tips\n\nAsk anything to get started!"
+        }
+      ]);
+    }
+  }, []);
+
+  // SEND MESSAGE
   async function sendMessage(messageText) {
     const text = messageText || input;
     if (!text) return;
 
     setMessages((prev) => [...prev, { role: "user", content: text }]);
     setInput("");
-    
-    const history = messages.map((m) => ({
+
+    const history = messages.map(m => ({
       role: m.role,
       content: m.content
     }));
@@ -46,30 +86,33 @@ export default function ChatPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ message: text, history })
     });
-    
+
     const reader = res.body.getReader();
     const decoder = new TextDecoder();
-    
-    setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
+
+    setMessages(prev => [...prev, { role: "assistant", content: "" }]);
     setIsLoading(true);
-    
+    setIsStreaming(true);
+    setTypingDone(false);     // 🔥 RESET TYPING DONE
+
     let accumulated = "";
-    
+
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
-      
+
       const chunk = decoder.decode(value);
-      const lines = chunk.split("\n").filter((line) => line.trim() !== "");
-      
+      const lines = chunk.split("\n").filter(n => n.trim() !== "");
+
       for (const line of lines) {
         try {
           const json = JSON.parse(line);
           const token = json?.choices?.[0]?.delta?.content;
+
           if (token) {
             accumulated += token;
-            
-            setMessages((prev) => {
+
+            setMessages(prev => {
               const updated = [...prev];
               updated[updated.length - 1].content = accumulated;
               return updated;
@@ -80,32 +123,44 @@ export default function ChatPage() {
     }
 
     setIsLoading(false);
+    setIsStreaming(false);
   }
 
-  return (
-    <div
+ return (
+  <div
+    style={{
+      width: "100%",
+      height: "100vh",
+      display: "flex",
+      flexDirection: "column",
+      overflow: "hidden",
+      color: "white",
+      padding: "12px",
+      boxSizing: "border-box",
+      fontFamily: "Text_Font"
+    }}
+  >
+    <h1
       style={{
-        width: "100%",
-        maxWidth: "100%",
-        overflowX: "hidden",
-        color: "black",
-        padding: "12px",
-        boxSizing: "border-box",
-        fontFamily: "Text_Font"
+        textAlign: "center",
+        fontFamily: "Title_Font",
+        fontSize: "clamp(40px, 5vw, 62px)",
+        background: "linear-gradient(to bottom,#1e3c72,#2a5298)",
+        WebkitBackgroundClip: "text",
+        color: "transparent"
       }}
     >
-      {/* Title */}
-      <h1
-        style={{
-          textAlign: "center",
-          fontFamily: "Title_Font",
-          fontSize: "clamp(40px, 5vw, 62px)"
-        }}
-      >
-        Ai Assistant
-      </h1>
+      AI Assistant
+    </h1>
 
-      {/* Common Suggestions (always visible) */}
+    <div
+      style={{
+        flex: 1,
+        overflowY: "auto",
+        paddingRight: 10
+      }}
+    >
+      {/* COMMON SUGGESTIONS */}
       <div style={{ marginBottom: 20 }}>
         <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
           {commonSuggestions.map((q, i) => (
@@ -127,61 +182,70 @@ export default function ChatPage() {
         </div>
       </div>
 
-      {/* Messages */}
-      <div style={{ paddingBottom: "80px" }}> {/* space before input */}
-        {messages.map((m, i) => (
+      {/* CHAT MESSAGES */}
+      {messages.map((m, i) => (
+        <div
+          key={i}
+          style={{
+            display: "flex",
+            justifyContent: m.role === "user" ? "flex-end" : "flex-start",
+            marginBottom: 12
+          }}
+        >
           <div
-            key={i}
             style={{
-              display: "flex",
-              justifyContent: m.role === "user" ? "flex-end" : "flex-start",
-              marginBottom: "12px"
+              maxWidth: "85%",
+              padding: "10px 14px",
+              borderRadius: 14,
+              background: m.role === "user" ? "#f7d488ff" : "#F4EAD5",
+              color: "#000",
+              whiteSpace: "pre-wrap"
             }}
           >
-            <div
-              style={{
-                maxWidth: "85%",
-                padding: "10px 14px",
-                borderRadius: "14px",
-                background: m.role === "user" ? "#f7d488ff" : "#F4EAD5",
-                color: "#000",
-                lineHeight: "1.4",
-                whiteSpace: "pre-wrap",
-                fontSize: "clamp(14px, 3vw, 17px)"
-              }}
-            >
-              {m.role === "assistant" ? <TypingMessage text={m.content} /> : m.content}
-            </div>
+            {m.role === "assistant" ? (
+              <TypingMessage
+                text={m.content}
+                onDone={() => setTypingDone(true)}
+              />
+            ) : (
+              m.content
+            )}
           </div>
-        ))}
+        </div>
+      ))}
 
-        {/* Loading dots */}
-        {isLoading && (
-          <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: 10 }}>
-            <div
-              style={{
-                background: "#F4EAD5",
-                padding: "10px 14px",
-                borderRadius: "14px",
-                maxWidth: "85%"
-              }}
-            >
-              <LoadingDots />
-            </div>
+      {isLoading && (
+        <div style={{ display: "flex", marginBottom: 10 }}>
+          <div
+            style={{
+              background: "#F4EAD5",
+              padding: "10px 14px",
+              borderRadius: 14
+            }}
+          >
+            <LoadingDots />
           </div>
-        )}
+        </div>
+      )}
 
-        <div ref={bottomRef}></div>
-      </div>
+      <div ref={bottomRef}></div>
 
-      {/* Follow-up Suggestions (after assistant reply, limited times) */}
-      {messages.length > 0 &&
-      !isLoading &&                                    // <--- bot finished
-      messages[messages.length - 1]?.role === "assistant" &&
-      followUpCount < maxFollowUp && (
-
-          <div style={{ margin: "15px 0", display: "flex", flexWrap: "wrap", gap: "10px" }}>
-            {followUpSuggestions.map((q, i) => (
+      {/* FOLLOW UP */}
+      {messages.length > 1 &&
+        !isLoading &&
+        !isStreaming &&
+        typingDone &&
+        messages[messages.length - 1].role === "assistant" &&
+        followUpCount < maxFollowUp && (
+          <div
+            style={{
+              margin: "15px 0",
+              display: "flex",
+              flexWrap: "wrap",
+              gap: 10
+            }}
+          >
+            {commonSuggestions.map((q, i) => (
               <button
                 key={i}
                 onClick={() => {
@@ -202,9 +266,18 @@ export default function ChatPage() {
             ))}
           </div>
         )}
+    </div>
 
-      {/* Input Box */}
-      <div style={{ display: "flex", marginTop: 10, width: "100%" }}>
+    {/* FIXED INPUT BAR */}
+    <div
+      style={{
+        position: "sticky",
+        bottom: 0,
+        background: "white",
+        padding: "10px 0"
+      }}
+    >
+      <div style={{ display: "flex" }}>
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
@@ -213,8 +286,7 @@ export default function ChatPage() {
             flex: 1,
             padding: 10,
             border: "1px solid #ccc",
-            borderRadius: "8px",
-            fontSize: "clamp(14px, 3vw, 18px)"
+            borderRadius: 8
           }}
         />
         <button
@@ -223,13 +295,13 @@ export default function ChatPage() {
             padding: "10px 14px",
             marginLeft: 10,
             borderRadius: 8,
-            cursor: "pointer",
-            fontSize: "clamp(14px, 3vw, 18px)"
+            cursor: "pointer"
           }}
         >
           Send
         </button>
       </div>
     </div>
-  );
+  </div>
+);
 }
