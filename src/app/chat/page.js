@@ -137,17 +137,22 @@ export default function ChatPage() {
       color: "white",
       padding: "12px",
       boxSizing: "border-box",
-      fontFamily: "Text_Font"
+      fontFamily: "Text_Font",
+      backgroundColor: "#0E1E38"
     }}
   >
     <h1
       style={{
-        textAlign: "center",
+        textAlign: "left",
         fontFamily: "Title_Font",
-        fontSize: "clamp(40px, 5vw, 62px)",
-        background: "linear-gradient(to bottom,#1e3c72,#2a5298)",
+        fontSize: "clamp(35px, 5vw, 62px)",
+        // background: "linear-gradient(to bottom,#1e3c72,#2a5298)",
         WebkitBackgroundClip: "text",
-        color: "transparent"
+        color: "#0E1E38",
+        paddingLeft:"20px",
+        background:"#fcf5e8ff",
+        borderRadius:"15px"
+        
       }}
     >
       AI Assistant
@@ -273,7 +278,7 @@ export default function ChatPage() {
       style={{
         position: "sticky",
         bottom: 0,
-        background: "white",
+        backgroundColor:"#0E1E38",
         padding: "10px 0"
       }}
     >
