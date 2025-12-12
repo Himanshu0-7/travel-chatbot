@@ -138,7 +138,7 @@ export default function ChatPage() {
       padding: "12px",
       boxSizing: "border-box",
       fontFamily: "Text_Font",
-      backgroundColor: "#0E1E38"
+        backgroundcolor:"transparent",
     }}
   >
     <h1
@@ -148,10 +148,10 @@ export default function ChatPage() {
         fontSize: "clamp(35px, 5vw, 62px)",
         // background: "linear-gradient(to bottom,#1e3c72,#2a5298)",
         WebkitBackgroundClip: "text",
-        color: "#0E1E38",
+        color: "white",
         paddingLeft:"20px",
-        background:"#fcf5e8ff",
-        borderRadius:"15px"
+        backgroundcolor:"transparent",
+        // borderRadius:"15px"
         
       }}
     >
@@ -278,7 +278,7 @@ export default function ChatPage() {
       style={{
         position: "sticky",
         bottom: 0,
-        backgroundColor:"#0E1E38",
+        backgroundcolor:"transparent",
         padding: "10px 0"
       }}
     >
