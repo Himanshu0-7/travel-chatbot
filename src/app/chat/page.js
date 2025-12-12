@@ -145,11 +145,10 @@ export default function ChatPage() {
       style={{
         textAlign: "left",
         fontFamily: "Title_Font",
-        fontSize: "clamp(35px, 5vw, 62px)",
+        fontSize: "clamp(40px, 5vw, 62px)",
         // background: "linear-gradient(to bottom,#1e3c72,#2a5298)",
         WebkitBackgroundClip: "text",
         color: "white",
-        paddingLeft:"20px",
         backgroundcolor:"transparent",
         // borderRadius:"15px"
         
@@ -178,7 +177,7 @@ export default function ChatPage() {
                 background: "#fcf5e8ff",
                 border: "1px solid #1e1e1e6a",
                 cursor: "pointer",
-                fontSize: "clamp(13px, 3vw, 17px)"
+                fontSize: "clamp(12px, 3vw, 14px)"
               }}
             >
               {q}
@@ -263,7 +262,7 @@ export default function ChatPage() {
                   background: "#fcf5e8ff",
                   border: "1px solid #1e1e1e6a",
                   cursor: "pointer",
-                  fontSize: "clamp(13px, 3vw, 17px)"
+                  fontSize: "clamp(12px, 3vw, 14px)"
                 }}
               >
                 {q}

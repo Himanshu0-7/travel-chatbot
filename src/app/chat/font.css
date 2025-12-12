@@ -11,9 +11,3 @@
   font-style: normal;
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-size: clamp(14px, 3vw, 18px);
-  
-} 
