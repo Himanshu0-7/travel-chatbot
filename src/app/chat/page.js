@@ -30,7 +30,6 @@ export default function ChatPage() {
   [
     "Best places to visit in India?",
     "Give me a 5-day travel plan.",
-    "Where should I go in winter in India?",
     "Family-friendly hotels nearby?"
   ];
 
