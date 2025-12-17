@@ -165,26 +165,6 @@ export default function ChatPage() {
       }}
     >
       {/* COMMON SUGGESTIONS */}
-      <div style={{ marginBottom: 20 }}>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
-          {commonSuggestions.map((q, i) => (
-            <button
-              key={i}
-              onClick={() => sendMessage(q)}
-              style={{
-                padding: "10px 15px",
-                borderRadius: 8,
-                background: "#fcf5e8ff",
-                border: "1px solid #1e1e1e6a",
-                cursor: "pointer",
-                fontSize: "clamp(12px, 3vw, 14px)"
-              }}
-            >
-              {q}
-            </button>
-          ))}
-        </div>
-      </div>
 
       {/* CHAT MESSAGES */}
       {messages.map((m, i) => (
@@ -193,7 +173,9 @@ export default function ChatPage() {
           style={{
             display: "flex",
             justifyContent: m.role === "user" ? "flex-end" : "flex-start",
-            marginBottom: 12
+            marginBottom: 12,
+            fontSize: "clamp(12px, 3vw, 14px)"
+
           }}
         >
           <div
@@ -217,6 +199,26 @@ export default function ChatPage() {
           </div>
         </div>
       ))}
+              <div style={{ marginBottom: 20 }}>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
+                  {commonSuggestions.map((q, i) => (
+                    <button
+                      key={i}
+                      onClick={() => sendMessage(q)}
+                      style={{
+                        padding: "10px 15px",
+                        borderRadius: 8,
+                        background: "#fcf5e8ff",
+                        border: "1px solid #1e1e1e6a",
+                        cursor: "pointer",
+                        fontSize: "clamp(12px, 3vw, 14px)"
+                      }}
+                    >
+                      {q}
+                    </button>
+                  ))}
+                </div>
+              </div>
 
       {isLoading && (
         <div style={{ display: "flex", marginBottom: 10 }}>
