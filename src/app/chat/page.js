@@ -11,12 +11,23 @@ export default function ChatPage() {
   const [isStreaming, setIsStreaming] = useState(false);
   const [typingDone, setTypingDone] = useState(false);   // 🔥 NEW
   const [followUpCount, setFollowUpCount] = useState(0);
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
   const bottomRef = useRef(null);
   const maxFollowUp = 3;
 
+  useEffect(() => {
+  const timer = setTimeout(() => {
+    setShowSuggestions(true);
+  }, 1000); // ⏱ 1.5 seconds
+
+  return () => clearTimeout(timer);
+}, []);
+
+
   // COMMON SUGGESTIONS
-  const commonSuggestions = [
+  const commonSuggestions = 
+  [
     "Best places to visit in India?",
     "Give me a 5-day travel plan.",
     "Where should I go in winter in India?",
@@ -199,26 +210,30 @@ export default function ChatPage() {
           </div>
         </div>
       ))}
-              <div style={{ marginBottom: 20 }}>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
-                  {commonSuggestions.map((q, i) => (
-                    <button
-                      key={i}
-                      onClick={() => sendMessage(q)}
-                      style={{
-                        padding: "10px 15px",
-                        borderRadius: 8,
-                        background: "#fcf5e8ff",
-                        border: "1px solid #1e1e1e6a",
-                        cursor: "pointer",
-                        fontSize: "clamp(12px, 3vw, 14px)"
-                      }}
-                    >
-                      {q}
-                    </button>
-                  ))}
-                </div>
-              </div>
+  
+        {showSuggestions && (
+  <div style={{ marginBottom: 20 }}>
+    <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
+      {commonSuggestions.map((q, i) => (
+        <button
+          key={i}
+          onClick={() => sendMessage(q)}
+          style={{
+            padding: "10px 15px",
+            borderRadius: 8,
+            background: "#fcf5e8ff",
+            border: "1px solid #1e1e1e6a",
+            cursor: "pointer",
+            fontSize: "clamp(12px, 3vw, 14px)",
+          }}
+        >
+          {q}
+        </button>
+      ))}
+    </div>
+  </div>
+)}
+
 
       {isLoading && (
         <div style={{ display: "flex", marginBottom: 10 }}>
