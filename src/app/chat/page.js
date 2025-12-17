@@ -217,7 +217,10 @@ export default function ChatPage() {
       {commonSuggestions.map((q, i) => (
         <button
           key={i}
-          onClick={() => sendMessage(q)}
+          onClick={() => {
+            setShowSuggestions(false),
+            sendMessage(q)
+          }}
           style={{
             padding: "10px 15px",
             borderRadius: 8,
