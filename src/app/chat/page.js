@@ -3,7 +3,9 @@ import { useState, useEffect, useRef } from "react";
 import TypingMessage from "./components/TypingMessage";
 import LoadingDots from "./components/LoadingDots";
 import "../chat/font.css";
-
+import MobileFrame from "./MobileFrame";
+import Lottie from "lottie-react";
+import aiAvatar from'../../../public/aiAvatar/avatar 1.json'
 export default function ChatPage() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
@@ -72,10 +74,11 @@ export default function ChatPage() {
     if (messages.length === 0) {
       setMessages([
         {
-          role: "assistant",
-          content:
-            "👋 Hi! I’m your AI Assistant.\n\nI can help you with:\n• Best places to visit\n• Custom itineraries\n• Hotels & stays\n• Local food & tips\n\nAsk anything to get started!"
-        }
+  role: "assistant",
+  content:
+    "👋 Hi! I’m Echo, your AI assistant.\n\nI can help you with:\n• Places to visit\n• Trip planning\n• Hotels & stays\n• Local food & tips\n\nAsk anything to get started 🙂"
+}
+
       ]);
     }
   }, []);
@@ -139,35 +142,67 @@ export default function ChatPage() {
   }
 
  return (
+   <MobileFrame>
+
+  <div
+     style={{
+    width: "100%",
+    height: "100%",
+    display: "flex",
+    flexDirection: "column",
+    overflow: "hidden",
+    color: "white",
+    padding: "12px",
+    paddingTop: "44px",   // ✅ important
+    boxSizing: "border-box",
+    fontFamily: "Text_Font",
+    backgroundColor: "transparent",
+  }}
+    >
+<div
+  style={{
+    position: "sticky",
+    top: 0,
+    zIndex: 5,
+    padding: "10px 14px",
+    marginBottom: 8,
+    backdropFilter: "blur(10px)",
+    borderBottom: "1px solid rgba(255,255,255,0.08)",
+  }}
+>
   <div
     style={{
-      width: "100%",
-      height: "100vh",
       display: "flex",
-      flexDirection: "column",
-      overflow: "hidden",
-      color: "white",
-      padding: "12px",
-      boxSizing: "border-box",
-      fontFamily: "Text_Font",
-        backgroundcolor:"transparent",
+      alignItems: "center",
+      gap: 10,
     }}
   >
-    <h1
+    {/* 🤖 AI LOTTIE AVATAR */}
+    <Lottie
+      animationData={aiAvatar}
+      loop
       style={{
-        textAlign: "left",
+        width: 50,
+        height: 50,
+      }}
+    />
+
+    {/* TITLE */}
+    <span
+      style={{
         fontFamily: "Title_Font",
-        fontSize: "clamp(40px, 5vw, 62px)",
-        // background: "linear-gradient(to bottom,#1e3c72,#2a5298)",
-        WebkitBackgroundClip: "text",
-        color: "white",
-        backgroundcolor:"transparent",
-        // borderRadius:"15px"
-        
+        fontSize: "18px",
+        fontWeight: 600,
+        letterSpacing: "0.3px",
+        color: "#fff",
       }}
     >
-      AI Assistant
-    </h1>
+      Echo
+    </span>
+  </div>
+</div>
+
+
 
     <div
       style={{
@@ -175,20 +210,20 @@ export default function ChatPage() {
         overflowY: "auto",
         paddingRight: 10
       }}
-    >
+      >
       {/* COMMON SUGGESTIONS */}
 
       {/* CHAT MESSAGES */}
       {messages.map((m, i) => (
         <div
-          key={i}
-          style={{
-            display: "flex",
-            justifyContent: m.role === "user" ? "flex-end" : "flex-start",
-            marginBottom: 12,
-            fontSize: "clamp(12px, 3vw, 14px)"
-
-          }}
+        key={i}
+        style={{
+          display: "flex",
+          justifyContent: m.role === "user" ? "flex-end" : "flex-start",
+          marginBottom: 12,
+          fontSize: "clamp(12px, 3vw, 14px)"
+          
+        }}
         >
           <div
             style={{
@@ -199,15 +234,15 @@ export default function ChatPage() {
               color: "#000",
               whiteSpace: "pre-wrap"
             }}
-          >
+            >
             {m.role === "assistant" ? (
               <TypingMessage
-                text={m.content}
-                onDone={() => {
-  setTypingDone(true);
-  setShowFollowUps(true);
-}}
-
+              text={m.content}
+              onDone={() => {
+                setTypingDone(true);
+                setShowFollowUps(true);
+              }}
+              
               />
             ) : (
               m.content
@@ -217,26 +252,26 @@ export default function ChatPage() {
       ))}
   
         {showSuggestions && (
-  <div style={{ marginBottom: 20 }}>
+          <div style={{ marginBottom: 20 }}>
     <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
       {commonSuggestions.map((q, i) => (
         <button
-          key={i}
-          onClick={() => {
-  setShowSuggestions(false);
-  setShowFollowUps(false);   // reset
-  setFollowUpCount(0);       // reset rotation
-  sendMessage(q);
-}}
-
-          style={{
-            padding: "10px 15px",
-            borderRadius: 8,
-            background: "#fcf5e8ff",
-            border: "1px solid #1e1e1e6a",
-            cursor: "pointer",
-            fontSize: "clamp(12px, 3vw, 14px)",
-          }}
+        key={i}
+        onClick={() => {
+          setShowSuggestions(false);
+          setShowFollowUps(false);   // reset
+          setFollowUpCount(0);       // reset rotation
+          sendMessage(q);
+        }}
+        
+        style={{
+          padding: "10px 15px",
+          borderRadius: 8,
+          background: "#fcf5e8ff",
+          border: "1px solid #1e1e1e6a",
+          cursor: "pointer",
+          fontSize: "clamp(12px, 3vw, 14px)",
+        }}
         >
           {q}
         </button>
@@ -254,7 +289,7 @@ export default function ChatPage() {
               padding: "10px 14px",
               borderRadius: 14
             }}
-          >
+            >
             <LoadingDots />
           </div>
         </div>
@@ -270,30 +305,30 @@ export default function ChatPage() {
  messages[messages.length - 1].role === "assistant" &&
  followUpCount < maxFollowUp && (
    <div
-     style={{
-       margin: "15px 0",
-       display: "flex",
-       flexWrap: "wrap",
-       gap: 10
-     }}
-   >
+   style={{
+     margin: "15px 0",
+     display: "flex",
+     flexWrap: "wrap",
+     gap: 10
+    }}
+    >
      {currentSuggestions.map((q, i) => (
        <button
-         key={i}
-         onClick={() => {
-           sendMessage(q);
-           setFollowUpCount((c) => c + 1);
-           setTypingDone(false); // reset for next answer
-         }}
-         style={{
+       key={i}
+       onClick={() => {
+         sendMessage(q);
+         setFollowUpCount((c) => c + 1);
+         setTypingDone(false); // reset for next answer
+        }}
+        style={{
            padding: "10px 15px",
            borderRadius: 8,
            background: "#fcf5e8ff",
            border: "1px solid #1e1e1e6a",
            cursor: "pointer",
            fontSize: "clamp(12px, 3vw, 14px)"
-         }}
-       >
+          }}
+          >
          {q}
        </button>
      ))}
@@ -304,13 +339,14 @@ export default function ChatPage() {
 
     {/* FIXED INPUT BAR */}
     <div
-      style={{
-        position: "sticky",
-        bottom: 0,
-        backgroundcolor:"transparent",
-        padding: "10px 0"
-      }}
-    >
+     style={{
+    position: "sticky",
+    bottom: 0,
+    padding: "10px 0",
+    background: "rgba(0,0,0,0.6)",
+    backdropFilter: "blur(10px)"
+  }}
+      >
       <div style={{ display: "flex" }}>
         <input
           value={input}
@@ -322,7 +358,7 @@ export default function ChatPage() {
             border: "1px solid #ccc",
             borderRadius: 8
           }}
-        />
+          />
         <button
           onClick={() => sendMessage()}
           style={{
@@ -331,11 +367,12 @@ export default function ChatPage() {
             borderRadius: 8,
             cursor: "pointer"
           }}
-        >
+          >
           Send
         </button>
       </div>
     </div>
   </div>
+          </MobileFrame>
 );
 }
