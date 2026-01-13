@@ -19,25 +19,21 @@ const styles = {
     width: "100%",
     height: "100vh",
     display: "flex",
-    justifyContent: "right",
+    justifyContent: "center",
     alignItems: "center",
-    backgroundImage: "url('/Images/bg-img.jpeg')",
-  backgroundSize: "cover",
-  backgroundPosition: "center",
-  backgroundRepeat: "no-repeat",
-},
+    background: "#000000"
+  },
 
-phone: {
+  phone: {
     width: 390,                // iPhone 14 width
     height: 780,               // iPhone 14 height
     borderRadius: 42,
     background: "#000",
-    border: "1px solid #ffffff65",
+    border: "1px solid #ffffff6e",
     padding: 10,
     boxShadow:
-    "0 30px 80px rgba(0,0,0,.6), inset 0 0 0 2px #1a1a1a",
-    position: "relative",
-    marginRight: '100px'
+      "0 30px 80px rgba(0,0,0,.6), inset 0 0 0 2px #1a1a1a",
+    position: "relative"
   },
 
   notch: {
