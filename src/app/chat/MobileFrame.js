@@ -25,8 +25,8 @@ const styles = {
   },
 
   phone: {
-    width: 390,                // iPhone 14 width
-    height: 780,               // iPhone 14 height
+    width: 380,                // iPhone 14 width
+    height: 700,               // iPhone 14 height
     borderRadius: 42,
     background: "#000",
     border: "1px solid #ffffff6e",
