@@ -12,6 +12,8 @@ export default function ChatPage() {
   const [typingDone, setTypingDone] = useState(false);   // 🔥 NEW
   const [followUpCount, setFollowUpCount] = useState(0);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [showFollowUps, setShowFollowUps] = useState(false);
+
 
   const bottomRef = useRef(null);
   const maxFollowUp = 3;
@@ -201,7 +203,11 @@ export default function ChatPage() {
             {m.role === "assistant" ? (
               <TypingMessage
                 text={m.content}
-                onDone={() => setTypingDone(true)}
+                onDone={() => {
+  setTypingDone(true);
+  setShowFollowUps(true);
+}}
+
               />
             ) : (
               m.content
@@ -217,9 +223,12 @@ export default function ChatPage() {
         <button
           key={i}
           onClick={() => {
-            setShowSuggestions(false),
-            sendMessage(q)
-          }}
+  setShowSuggestions(false);
+  setShowFollowUps(false);   // reset
+  setFollowUpCount(0);       // reset rotation
+  sendMessage(q);
+}}
+
           style={{
             padding: "10px 15px",
             borderRadius: 8,
@@ -253,42 +262,44 @@ export default function ChatPage() {
 
       <div ref={bottomRef}></div>
 
-      {/* FOLLOW UP */}
-      {messages.length > 1 &&
-        !isLoading &&
-        !isStreaming &&
-        typingDone &&
-        messages[messages.length - 1].role === "assistant" &&
-        followUpCount < maxFollowUp && (
-          <div
-            style={{
-              margin: "15px 0",
-              display: "flex",
-              flexWrap: "wrap",
-              gap: 10
-            }}
-          >
-            {commonSuggestions.map((q, i) => (
-              <button
-                key={i}
-                onClick={() => {
-                  sendMessage(q);
-                  setFollowUpCount(followUpCount + 1);
-                }}
-                style={{
-                  padding: "10px 15px",
-                  borderRadius: 8,
-                  background: "#fcf5e8ff",
-                  border: "1px solid #1e1e1e6a",
-                  cursor: "pointer",
-                  fontSize: "clamp(12px, 3vw, 14px)"
-                }}
-              >
-                {q}
-              </button>
-            ))}
-          </div>
-        )}
+ {showFollowUps &&
+ messages.length > 1 &&
+ !isLoading &&
+ !isStreaming &&
+ typingDone &&
+ messages[messages.length - 1].role === "assistant" &&
+ followUpCount < maxFollowUp && (
+   <div
+     style={{
+       margin: "15px 0",
+       display: "flex",
+       flexWrap: "wrap",
+       gap: 10
+     }}
+   >
+     {currentSuggestions.map((q, i) => (
+       <button
+         key={i}
+         onClick={() => {
+           sendMessage(q);
+           setFollowUpCount((c) => c + 1);
+           setTypingDone(false); // reset for next answer
+         }}
+         style={{
+           padding: "10px 15px",
+           borderRadius: 8,
+           background: "#fcf5e8ff",
+           border: "1px solid #1e1e1e6a",
+           cursor: "pointer",
+           fontSize: "clamp(12px, 3vw, 14px)"
+         }}
+       >
+         {q}
+       </button>
+     ))}
+   </div>
+ )}
+
     </div>
 
     {/* FIXED INPUT BAR */}
